@@ -8,6 +8,8 @@ from utilities.spark import initialise_spark
 def main() -> None:
     spark = initialise_spark()
     train_df, test_df = Ingest.ingest_data()
+    Preprocessor.preprocess_data(train_df)
+    Preprocessor.preprocess_data(test_df)
     return train_df, test_df
 
 
