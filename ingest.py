@@ -1,9 +1,14 @@
 import constants as cst
 
+from utilities.spark import get_current_session
+
 
 def ingest():
-    df = pandas.read_csv(cst.DATA_PATH)
-    return df
+    session = get_current_session()
+    # session = SparkSession.builder.getOrCreate()
+    train_data = session.read.format("csv").option("header", "true").load(cst.DATA_PATH)
+    test_data = session.read.format("csv").option("header", "true").load(cst.DATA_PATH)
+    return train_data, test_data
 
 
 def main():

@@ -6,8 +6,13 @@ from utilities.spark import initialise_spark
 
 def main() -> None:
     spark = initialise_spark()
-    df = spark.read.format("csv").option("header", "true").load(cst.DATA_PATH)
-    return df
+    train_df, test_df = ingest()
+    import pdb; pdb.set_trace()
+
+    # Combine the train and test data and preprocess together
+    combined_data = train_df.union(test_df)
+
+    return train_data
 
 
 if __name__ == "__main__":
