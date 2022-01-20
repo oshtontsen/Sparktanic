@@ -4,11 +4,12 @@ from utilities.spark import get_current_session
 
 
 def ingest():
+    """Read train and test from csv"""
     session = get_current_session()
     # session = SparkSession.builder.getOrCreate()
-    train_data = session.read.format("csv").option("header", "true").load(cst.DATA_PATH)
-    test_data = session.read.format("csv").option("header", "true").load(cst.DATA_PATH)
-    return train_data, test_data
+    train_df = session.read.format("csv").option("header", "true").load(cst.TRAIN_DATA_PATH)
+    test_df = session.read.format("csv").option("header", "true").load(cst.TEST_DATA_PATH)
+    return train_df, test_df
 
 
 def main():
