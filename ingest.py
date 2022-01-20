@@ -13,9 +13,5 @@ class Ingest:
         return train_df, test_df
 
 
-def main():
-    pass
-
-
 if __name__ == "__main__":
-    main()
+    pass
