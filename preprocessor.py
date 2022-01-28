@@ -81,15 +81,28 @@ class Preprocessor:
         # Check where high-class women embarked from
         # df.where((df.Pclass == '1') & (df.Sex == 'female')).select('Sex', 'Pclass', 'Embarked').count()
         # Impute google'ed value for Stone, Mrs. George Nelson (Martha Evelyn) and Amelie Icard
-        return df.select("Embarked").fillna("S")
+        return df.fillna("S", subset=["Embarked"])
+
+    def preprocess_fare(self, df):
+        """Preprocess passenger fares"""
+        # NOTE: There are no passengers missing fare in the train data
+        # Median Fare value of a male with a third class ticket and no family is a logical choice to fill the missing value.
+        # df.where(isnan(col('Fare'))).count()
+        # df.where(col('Fare').isNull()).count()
+        # from pyspark.sql.functions import lit, percentile_approx
+        # df_fare = df.groupBy('Sex', 'Pclass', 'SibSp', 'Parch').agg(percentile_approx("Fare", 0.5, lit(1000000)).alias("Fare_median")).show()
+        # med_fare = df_fare.where((col('Sex') == 'male') & (col('Pclass') == 3) & (col('SibSp') == '0') & (col('Parch') == '0')).select('Fare_median').collect()[0][0]
+        return df
 
     def preprocess_data(self, df):
         """Preprocess the data for training and inference"""
         self.get_column_types(df)
         self.nan_cols = self.get_nan_cols(df)
         self.null_cols = self.get_null_cols(df)
-        df = self.preprocess_age(df)
+        # df = self.preprocess_age(df)
         df = self.preprocess_embarked(df)
+        # NOTE: Fare column needs no preprocessing because there are no missing values
+        df = self.preprocess_fare(df)
         return
 
 
