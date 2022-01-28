@@ -74,6 +74,7 @@ class Preprocessor:
         df_ = df.groupBy("Sex", "Pclass").agg(
             percentile_approx("Age", 0.5, lit(1000000)).alias("Age_imputed")
         )
+        # TODO: Look into expr() and regexp_replace() as seen in #5 of https://sparkbyexamples.com/pyspark/pyspark-replace-column-values/
         # ----
 
     def preprocess_embarked(self, df):
@@ -94,6 +95,30 @@ class Preprocessor:
         # med_fare = df_fare.where((col('Sex') == 'male') & (col('Pclass') == 3) & (col('SibSp') == '0') & (col('Parch') == '0')).select('Fare_median').collect()[0][0]
         return df
 
+    def preprocess_cabin(self, df):
+        """Preprocess passenger cabin categorical feature using the following rules:
+        A, B and C cabins are labeled as ABC because all of them have only 1st class passengers
+        D and E cabins are labeled as DE because both of them have similar passenger class distribution and same survival rate
+        F and G cabins are labeled as FG because of the same reason above
+        M cabin doesn't need to be grouped with other cabins because it is very different from others and has the lowest survival rate.
+        """
+        # df.where(col('Cabin').isNull()).count()
+        df = df.withColumn(
+            "Cabin",
+            when(df.Cabin.startswith("A"), "ABC")
+            .when(df.Cabin.startswith("B"), "ABC")
+            .when(df.Cabin.startswith("T"), "ABC")
+            .when(df.Cabin.startswith("C"), "ABC")
+            .when(df.Cabin.startswith("D"), "DE")
+            .when(df.Cabin.startswith("E"), "DE")
+            .when(df.Cabin.startswith("F"), "FG")
+            .when(df.Cabin.startswith("G"), "FG")
+            .otherwise(df.Cabin),
+        )
+        # M is imputed for null Cabin values
+        df = df.fillna("M", subset=["Cabin"])
+        return df
+
     def preprocess_data(self, df):
         """Preprocess the data for training and inference"""
         self.get_column_types(df)
@@ -103,6 +128,8 @@ class Preprocessor:
         df = self.preprocess_embarked(df)
         # NOTE: Fare column needs no preprocessing because there are no missing values
         df = self.preprocess_fare(df)
+        df = self.preprocess_cabin(df)
+        import pdb; pdb.set_trace()
         return
 
 
