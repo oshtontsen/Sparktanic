@@ -76,12 +76,20 @@ class Preprocessor:
         )
         # ----
 
+    def preprocess_embarked(self, df):
+        """Preproccess the embark categorical feature"""
+        # Check where high-class women embarked from
+        # df.where((df.Pclass == '1') & (df.Sex == 'female')).select('Sex', 'Pclass', 'Embarked').count()
+        # Impute google'ed value for Stone, Mrs. George Nelson (Martha Evelyn) and Amelie Icard
+        return df.select("Embarked").fillna("S")
+
     def preprocess_data(self, df):
         """Preprocess the data for training and inference"""
         self.get_column_types(df)
         self.nan_cols = self.get_nan_cols(df)
         self.null_cols = self.get_null_cols(df)
-        self.preprocess_age(df)
+        df = self.preprocess_age(df)
+        df = self.preprocess_embarked(df)
         return
 
 
