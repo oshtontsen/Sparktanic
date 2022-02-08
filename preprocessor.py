@@ -119,6 +119,11 @@ class Preprocessor:
         df = df.fillna("M", subset=["Cabin"])
         return df
 
+    def preprocess_family_size(self, df):
+        """Create a new feature for the total family size for a passenger including themselves."""
+        # Use int for Family_Size because int is 4 bytes of memory vs double, which is 8 bytes of memory
+        return df.withColumn("Family_Size", int(col("Parch") + col("SibSp") + 1))
+
     def preprocess_data(self, df):
         """Preprocess the data for training and inference"""
         self.get_column_types(df)
@@ -129,7 +134,8 @@ class Preprocessor:
         # NOTE: Fare column needs no preprocessing because there are no missing values
         df = self.preprocess_fare(df)
         df = self.preprocess_cabin(df)
-        import pdb; pdb.set_trace()
+        # TODO: Read feature engineering portion
+        df = self.preprocess_family_size(df)
         return
 
 
