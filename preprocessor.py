@@ -123,15 +123,15 @@ class Preprocessor:
         """Create a new feature for the total family size for a passenger including themselves."""
         df = df.withColumn("Family_Size", col("Parch") + col("SibSp") + int(1))
         # Use int for Family_Size because int is 4 bytes of memory vs double, which is 8 bytes of memory
-        return df.withColumn("Family_Size", df.Family_Size.cast('integer'))
+        return df.withColumn("Family_Size", df.Family_Size.cast("integer"))
 
     def get_title(self, df):
-        """Extract all strings which lie between A-Z or a-z preceding by '.'(dot)""""
+        """Extract all strings which lie between A-Z or a-z preceding by '.'(dot)"""
         return df.withColumn("Initial", regexp_extract(col("Name"), "([A-Za-z]+)\.", 1))
 
     def get_surname(self, df):
         """Extract surnames such as Mr., Mrs."""
-        return df.withColumn('Surname', regexp_extract(col('Name'), '(\S+),.*', 1))
+        return df.withColumn("Surname", regexp_extract(col("Name"), "(\S+),.*", 1))
 
     def preprocess_data(self, df):
         """Preprocess the data for training and inference"""
